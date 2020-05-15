@@ -22,7 +22,7 @@ namespace LibraryBot
             client = new DiscordSocketClient();
             commands = new CommandService();
 
-            string token = "Token";
+            string token = "NTUwNTAwNzc0MzY3NzIzNTQw.Xr72hw.eORx0zrHoEb20reqib0gJ3CXg_k";
 
             services = new ServiceCollection()
                     .BuildServiceProvider();
@@ -88,5 +88,4 @@ namespace LibraryBot
         }
 
     }
-
 }
