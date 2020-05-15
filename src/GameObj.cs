@@ -6,7 +6,6 @@ using Discord.Commands;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using LibraryBot;
 
 namespace LibraryBot
 {
@@ -14,21 +13,17 @@ namespace LibraryBot
     {
         private List<UserNode> players;
         private List<MonsterNode> monsters;
-
         private int currentPlayer;
         private int currentMonster;
         private int turnNumber;
         private bool playerDone;
         private bool monsterDone;
-
         private bool collectInit;
         private bool collecting;
         private bool initReady;
         private int initiativesEntered;
-
         private IUser dm;
         private IMessageChannel channel;
-
         public GameObj(IUser dm, IMessageChannel channel)
         {
             this.dm = dm;
@@ -294,6 +289,9 @@ namespace LibraryBot
                 return -1;
             }
             monsters.RemoveAt(target);
+            if(target == monsters.Count - 1) {
+                currentMonster = 0;
+            }
             return 0;
         }
 
@@ -400,6 +398,40 @@ namespace LibraryBot
                 }
             }
             return msg;
+        }
+
+        public string dmView(IUser usr, IUser dm)
+        {
+            if (this.dm.Equals(dm))
+            {
+                int target = findPlayer(usr);
+                if (target == -1)
+                {
+                    return "Player not found.";
+                }
+                else
+                {
+                    return players[target].getCharacter().toString();
+                }
+            }
+            return "You are not the DM for that user.";
+        }
+    
+        public int attackMonster(string monsterName, int damage) {
+            int index = 0;
+            for(int i = 0; i < monsters.Count; i++) {
+                if(monsters[i].getMonster().Equals(monsterName)) {
+                    index = i;
+                }
+            }
+            if(index == -1) {
+                return 1;
+            }
+            int num = monsters[index].takeDamage(damage);
+            if(num <= 0) {
+                return 2;
+            }
+            return 0;
         }
     }
 }
