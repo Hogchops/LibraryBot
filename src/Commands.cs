@@ -212,7 +212,7 @@ namespace LibraryBot
         public async Task Help()
         {
             await Context.Channel.SendMessageAsync("Roll some dice! Commands:\n"
-                + "**!roll** num d num +/- num** | Examples: **!roll 4d8 + 2** | **!roll 2d10 - 3** | **!roll d20**"
+                + "**!roll num d num +/- num** | Examples: **!roll 4d8 + 2** | **!roll 2d10 - 3** | **!roll d20**"
                 + "Some other useful commands during a DnD session:\n"
                 + "**!chelp** | Help page for character creation.\n"
                 + "**!p a** | Add yourself to the party\n"
