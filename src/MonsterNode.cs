@@ -12,6 +12,8 @@ namespace LibraryBot
     {
         private string monster;
         private int init;
+        private int ac;
+        private int hp;
 
         public MonsterNode(string monster)
         {
@@ -22,15 +24,29 @@ namespace LibraryBot
         {
             this.init = init;
         }
-
         public string getMonster()
         {
             return monster;
         }
-
         public int getInit()
         {
             return init;
+        }
+        public int getAC() {
+            return ac;
+        }
+        public int getHP() {
+            return hp;
+        }
+        public void setAC(int ac) {
+            this.ac = ac;
+        }
+        public void setHP(int hp) {
+            this.hp = hp;
+        }
+        public int takeDamage(int damage) {
+            hp -= damage;
+            return hp;
         }
     }
 }
