@@ -42,8 +42,8 @@ namespace LibraryBot
                 + "**!cc [character name]** | Create a blank character with a name of your choosing.\n"
                 + "**!o [file name]** | Open your active character with a specific filename.\n"
                 + "**!s [file name]** | Save your character with a specific filename. Make sure to remember it!\n"
-                + "**!set [stat] [number] | See **!c hc** for more information.\n"
-                + "**!hc | Help page for creating a character.";
+                + "**!set [stat] [number]** | See **!c hc** for more information.\n"
+                + "**!hc** | Help page for creating a character.";
             await Context.User.SendMessageAsync(msg);
         }
 
@@ -56,11 +56,11 @@ namespace LibraryBot
                 + "Here is the basic command you will be using during this entire process:\n"
                 + "**!set [field] [data]** | Set a specific field of information with a specific data entry.\n"
                 + "More general, you will need to do **!c set** for each statistic your character needs in order to function. Here are some examples:\n"
-                + "**!set str 14** | **!c set level 3** | **!c set race Dragonborn**\n"
+                + "**!set str 14** | **!set level 3** | **!set race Dragonborn** | **!set spellcaster true** \n"
                 + "Here are all the fields that you need to fill out before your character is ready to go:\n"
-                + "ac | hp | str | con | dex | int | wis | cha | class | race | level | hitdice\n"
+                + "ac | hp | str | con | dex | int | wis | cha | class | race | level | hitdice | spellcaster | hitdie | primarystat\n"
                 + "Once done setting these values, you need to setup your proficiencies. Here are the following commands:\n"
-                + "**!p add [type] [value] | Add a proficiency for value within type. Here are some examples:\n"
+                + "**!p add [type] [value]** | Add a proficiency for value within type. Here are some examples:\n"
                 + "**!p add st str** | **!p remove ability arcana** | !**p add e heavy armor**\n"
                 + "Available types: saving throw (st), equipment (e), ability (a)\n"
                 + "Available values: Anything for equipment, str, con, etc for saving throws, and arcana, survival, etc for ability.\n"
@@ -136,7 +136,7 @@ namespace LibraryBot
             }
             CharacterNode character = new CharacterNode(Context.User, characterName);
             characters.Add(character);
-            await Context.User.SendMessageAsync("You created a new character named " + characterName +". Enter !hc for help creating your character.");
+            await Context.User.SendMessageAsync("You created a new character named " + characterName + ". Enter !hc for help creating your character.");
         }
 
         [Command("save")]
@@ -434,6 +434,78 @@ namespace LibraryBot
                     await Context.User.SendMessageAsync("You have updated your Hit Dice to " + num);
                 }
             }
+
+            [Command("hitdie")]
+            [Summary("The value of your hit die")]
+            public async Task setHitDie(int num)
+            {
+                if (characters == null)
+                {
+                    characters = new List<CharacterNode>();
+                }
+                CharacterNode character = findCharacter(Context.User);
+                if (character == null)
+                {
+                    await Context.User.SendMessageAsync("You have no active character.");
+                }
+                else
+                {
+                    if (num == 4 || num == 6 || num == 8 || num == 12 || num == 10 || num == 20 || num == 100)
+                    {
+                        character.setHitDie(num);
+                        await Context.User.SendMessageAsync("Hit die updated.");
+                    }
+                    else
+                    {
+                        await Context.User.SendMessageAsync("That is not a valid die.");
+
+                    }
+                }
+            }
+        
+            [Command("spellcaster")]
+            [Summary("Set your spellcasting ability")]
+            [Alias("spell")]
+            public async Task setSpellcasting(bool value) {
+                if (characters == null)
+                {
+                    characters = new List<CharacterNode>();
+                }
+                CharacterNode character = findCharacter(Context.User);
+                if (character == null)
+                {
+                    await Context.User.SendMessageAsync("You have no active character.");
+                }
+                else
+                {
+                    character.setSpellcaster(value);
+                    await Context.User.SendMessageAsync("Spellcasting updated.");
+                }
+            }
+        
+            [Command("primarystat")]
+            [Summary("Set your primary stat")]
+            [Alias("ps")]
+            public async Task setPrimaryStat(string stat) {
+                if (characters == null)
+                {
+                    characters = new List<CharacterNode>();
+                }
+                CharacterNode character = findCharacter(Context.User);
+                if (character == null)
+                {
+                    await Context.User.SendMessageAsync("You have no active character.");
+                }
+                else
+                {
+                    if(character.determineValidStat(stat)) {
+                        character.setPrimaryStat(stat);
+                        await Context.Channel.SendMessageAsync("Primary stat updated.");
+                    } else {
+                        await Context.Channel.SendMessageAsync("That is not a valid stat.");
+                    }
+                }
+            }
         }
 
         [Group("proficiency")]
@@ -599,6 +671,165 @@ namespace LibraryBot
                     }
                     await Context.User.SendMessageAsync("I added the proficiency for you.");
                 }
+            }
+        }
+
+        [Group("conditions")]
+        [Summary("Conditions commands")]
+        [Alias("c")]
+        public class Conditions : ModuleBase
+        {
+            [Command("add")]
+            [Summary("Add a condition")]
+            [Alias("a")]
+            public async Task add([Remainder, Summary("Condition name")] string condition)
+            {
+                CharacterNode old = findCharacter(Context.User);
+                if (old == null)
+                {
+                    await Context.User.SendMessageAsync("You do not have an active character.");
+                    return;
+                }
+                int error = old.addCondition(condition);
+                if (error == 1)
+                {
+                    await Context.User.SendMessageAsync("That is not a valid condition.");
+                    return;
+                }
+                await Context.User.SendMessageAsync("Condition added.");
+            }
+
+            [Command("remove")]
+            [Summary("Remove a condition")]
+            [Alias("r")]
+            public async Task remove([Remainder, Summary("Condition name")] string condition)
+            {
+                CharacterNode old = findCharacter(Context.User);
+                if (old == null)
+                {
+                    await Context.User.SendMessageAsync("You do not have an active character.");
+                    return;
+                }
+                int error = old.removeCondition(condition);
+                if (error == 1)
+                {
+                    await Context.User.SendMessageAsync("That is not a valid condition.");
+                    return;
+                }
+                await Context.User.SendMessageAsync("Condition removed.");
+            }
+        }
+
+        [Group("resistances")]
+        [Summary("Add or remove Resistance, Immunity, or Vulnerability")]
+        [Alias("resist")]
+        public class Resistance : ModuleBase
+        {
+            [Command("add")]
+            [Summary("Add a resistance")]
+            [Alias("a")]
+            public async Task add(string type, [Remainder, Summary("Resistance name")] string resistance)
+            {
+                type = type.ToLower().Trim();
+                CharacterNode old = findCharacter(Context.User);
+                if (old == null)
+                {
+                    await Context.User.SendMessageAsync("You do not have an active character.");
+                    return;
+                }
+                if (type != "res" && type != "resistance" && type != "vul" && type != "vulnerability" && type != "imm" && type != "immune")
+                {
+                    await Context.User.SendMessageAsync(type + " is not a valid type. Please enter resistance, vulnerability, immune, or res, vul, or imm.");
+                    return;
+                }
+                int index = old.damageTypes(resistance);
+                if (index == -1)
+                {
+                    await Context.User.SendMessageAsync("Please enter a valid damage type.");
+                    return;
+                }
+                if (type == "res" || type == "resistance")
+                {
+                    old.addResistance(resistance);
+                }
+                else if (type == "vul" || type == "vulnerability")
+                {
+                    old.addVulnerability(resistance);
+                }
+                else if (type == "imm" || type == "immune")
+                {
+                    old.addImmunity(resistance);
+                }
+                await Context.User.SendMessageAsync("I added the " + type + " for you.");
+            }
+
+            [Command("remove")]
+            [Summary("Remove a resistance")]
+            [Alias("r")]
+            public async Task remove(string type, [Remainder, Summary("Resistance name")] string resistance)
+            {
+                type = type.ToLower().Trim();
+                CharacterNode old = findCharacter(Context.User);
+                if (old == null)
+                {
+                    await Context.User.SendMessageAsync("You do not have an active character.");
+                    return;
+                }
+                if (type != "res" && type != "resistance" && type != "vul" && type != "vulnerability" && type != "imm" && type != "immune")
+                {
+                    await Context.User.SendMessageAsync(type + " is not a valid type. Please enter resistance, vulnerability, immune, or res, vul, or imm.");
+                    return;
+                }
+                int index = old.damageTypes(resistance);
+                if (index == -1)
+                {
+                    await Context.User.SendMessageAsync("Please enter a valid damage type.");
+                    return;
+                }
+                if (type == "res" || type == "resistance")
+                {
+                    old.removeResistance(resistance);
+                }
+                else if (type == "vul" || type == "vulnerability")
+                {
+                    old.removeVulnerability(resistance);
+                }
+                else if (type == "imm" || type == "immune")
+                {
+                    old.removeImmunity(resistance);
+                }
+                await Context.User.SendMessageAsync("I removed the " + type + " for you, if you had it originally.");
+            }
+        }
+    
+        [Group("spell")]
+        [Summary("Add or remove spells")]
+        [Alias("s")]
+        public class Spell : ModuleBase {
+            [Command("add")]
+            [Summary("Add a spell")]
+            [Alias("a")]
+            public async Task add([Remainder, Summary("Spell name")] string spellName) {
+                CharacterNode character = findCharacter(Context.User);
+                if(character == null) {
+                    await Context.User.SendMessageAsync("You have no active character.");
+                    return;
+                }
+                character.addSpell(spellName);
+                await Context.User.SendMessageAsync("The spell was added to your spell list.");
+            }
+
+            [Command("remove")]
+            [Summary("Remove a spell")]
+            [Alias("r")]
+            public async Task remove([Remainder, Summary("Spell name")] string spellName) {
+                CharacterNode character = findCharacter(Context.User);
+                if(character == null) {
+                    await Context.User.SendMessageAsync("You have no active character.");
+                    return;
+                }
+                character.removeSpell(spellName);
+                await Context.User.SendMessageAsync("The spell was removed from your spell list.");
             }
         }
     }
