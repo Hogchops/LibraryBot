@@ -298,7 +298,7 @@ namespace LibraryBot
                     stMod[i] = "" + determineModifier(determineStat(i));
                 }
             }
-            msg += String.Format("{0, -15} {1, -15} {2, -15} {3, -15} {4, -15} {5, -15}\n", stMod[0] + "", stMod[1] + "", stMod[2] + "", stMod[3] + "", stMod[4] + "", stMod[5] + "");
+            msg += String.Format("{0, -15} {1, -15} {2, -15} {3, -15} {4, -15} {5, -15}\n", stMod[0] + " (" + getStr() + ")", stMod[1] + " (" + getDex() + ")", stMod[2] + " (" + getCon() + ")", stMod[3] + " (" + getIntel() + ")", stMod[4] + " (" + getWis() + ")", stMod[5] + " (" + getChr() + ")");
             msg += "Hit Dice: " + hitDiceRemaining + "\n";
             msg += "AC: " + ac + "\n";
             msg += "\nSaving throw modifiers:\n";
@@ -326,7 +326,15 @@ namespace LibraryBot
             }
             msg += String.Format("{0, -15} {1, -15} {2, -15} {3, -15} {4, -15} {5, -15}\n", stats[0], stats[1], stats[2], stats[3], stats[4], stats[5]);
             msg += String.Format("{0, -15} {1, -15} {2, -15} {3, -15} {4, -15} {5, -15}", stMods[0], stMods[1], stMods[2], stMods[3], stMods[4], stMods[5]);
-            msg += "\n\nAbilities:\n";
+            int pasPer = 10 + determineModifierOfAbility("perception");
+            if(abilityProfs[getAbility("perception")]) {
+                pasPer += determineProficiency();
+            }
+            int pasInv = 10 + determineModifierOfAbility("investigation");
+            if(abilityProfs[getAbility("investigation")]) {
+                pasInv += determineProficiency();
+            }
+            msg += String.Format("\n\n{0, -40} {1, -40} {2, -20}\n", "Abilities:", "Passive Perception: " + pasPer, "Passive Investigation: " + pasInv);
             for (int i = 0; i < abilityProfs.Length; i++)
             {
                 if (i == getAbility("intimidation") && dndClass.ToLower().Trim().Equals("lich"))
@@ -459,7 +467,7 @@ namespace LibraryBot
             } else {
                 number = determineModifier(getStr());
             }
-            msg += String.Format("{0, -30}", "Attack modifier: " + number);
+            msg += String.Format("{0, -30}", "Attack modifier: " + number + ", " + (int)(number + determineProficiency()) + " if proficient.");
 
             if(spellCaster) {
                 msg += "\n\nSpell List:\n";
