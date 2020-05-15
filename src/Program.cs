@@ -6,7 +6,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Library
+namespace LibraryBot
 {
 
     public class Program
@@ -22,7 +22,7 @@ namespace Library
             client = new DiscordSocketClient();
             commands = new CommandService();
 
-            string token = "Token goes here!";
+            string token = "Token";
 
             services = new ServiceCollection()
                     .BuildServiceProvider();
@@ -64,19 +64,19 @@ namespace Library
                 switch (result.ErrorReason)
                 {
                     default:
-                        await context.Channel.SendMessageAsync("The server responded with:\n" + result.ErrorReason + "\nIf you believe this is an error, please contact a Tester.");
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                     case "The server responded with error 403: Forbidden":
-                        await context.Channel.SendMessageAsync("You lack sufficient permissions to activate this command.\nIf you believe this is an error, please contact a Tester.");
+                        await context.Channel.SendMessageAsync("You lack sufficient permissions to activate this command.");
                         break;
                     case "Object reference not set to an instance of an object.":
-                        await context.Channel.SendMessageAsync("Make sure to use **=ng** before other commands.\nIf you believe this is an error, please contact a Tester.");
+                        await context.Channel.SendMessageAsync("Make sure to use **=ng** before other commands, or **!cc**.");
                         break;
                     case "The input text has too few parameters.":
-                        await context.Channel.SendMessageAsync("The command you entered was missing inputs.\nIf you believe this is an error, please contact a Tester.");
+                        await context.Channel.SendMessageAsync("The command you entered was missing inputs.");
                         break;
                     case "Failed to parse Int32.":
-                        await context.Channel.SendMessageAsync("Your number is too large.\nIf you believe this is an error, please contact a Tester.");
+                        await context.Channel.SendMessageAsync("Your number is too large.");
                         break;
                 }
         }
